@@ -37,7 +37,7 @@ confirm stability after fixing a parallel-load flake.
 
 ## 3. Browser tests (Playwright)
 
-`npx playwright test` — **78 passed, 2 skipped** (the two skips are desktop-only
+`npx playwright test` — **106 passed, 2 skipped** (the two skips are desktop-only
 keyboard/menu tests correctly skipped on the mobile project).
 
 Two projects: `desktop-chromium` (1440×900) and `mobile-chromium` (Pixel 7).
@@ -64,6 +64,8 @@ Two projects: `desktop-chromium` (1440×900) and `mobile-chromium` (Pixel 7).
 | All images have alt text | ✅ |
 | `robots.txt` and `sitemap.xml` served; sitemap has 44 `<url>` entries | ✅ |
 | Each page has a distinct canonical | ✅ |
+| **Light mode keeps every large surface light** (7 routes) | ✅ measured by computed luminance |
+| **Dark mode keeps every large surface dark** (7 routes) | ✅ measured by computed luminance |
 
 ## 4. Lighthouse — real measured scores
 
@@ -102,6 +104,21 @@ The mobile Performance score is 90 rather than 99 because the mobile preset
 applies 4× CPU throttling and a slow-4G network simulation to pages that are
 long by design.
 
+## 4b. Theme consistency
+
+Encoded as a test rather than checked by eye. For seven routes, in both colour
+schemes, every block covering more than 12% of the viewport has its computed
+background converted to relative luminance and asserted on the correct side of
+the line:
+
+| Mode | Assertion | Result |
+| --- | --- | --- |
+| Light | every large surface has luminance **> 0.5** | ✅ 7/7 routes |
+| Dark | every large surface has luminance **< 0.2** | ✅ 7/7 routes |
+
+Offscreen sections are forced to lay out first, so `content-visibility: auto`
+cannot hide a surface from the measurement.
+
 ## 4a. Rebrand verification
 
 The official logo, its palette and a new typeface were applied after the first
@@ -112,7 +129,7 @@ QA pass. Everything in §1–§4 was re-run against the rebuilt site:
 | Typecheck, lint | ✅ 0 errors, 0 warnings |
 | 229 unit tests | ✅ all passing |
 | 78 browser tests | ✅ all passing |
-| Lighthouse accessibility, all pages | ✅ **100** — the new palette was contrast-checked before use |
+| Lighthouse accessibility, all pages | ✅ **100** on Home, About, Brands, Product, Case study, Industry, Work, Careers, Contact |
 | CLS after the typeface change | ✅ **0** — fallback metrics re-measured for Plus Jakarta Sans |
 | Logo fidelity | ✅ Traced SVG rendered beside the source artwork and compared visually |
 | Traced path weight | ✅ 6.5 KB total after smoothing (137 KB if traced naively) |
@@ -147,6 +164,9 @@ Every one of these was discovered by a check in this document, not by inspection
 | 13 | **Fonts blocked first render.** | Lighthouse render-blocking audit | Non-blocking stylesheet load, made safe by metric-matched fallback faces so the swap causes no shift |
 | 14 | **CSP would have blocked the inline bootstrap script in production** — the policy allowed `script-src 'self'` only. | CSP verification test | SHA-256 hash computed at build time and injected into `dist/.htaccess` |
 | 15 | **Mobile TBT of 850 ms.** | Lighthouse mobile | `content-visibility: auto` on below-the-fold sections → TBT 210 ms, Performance 74 → 90 |
+| 19 | **A near-black band on a light page.** The hero, CTA, feature sections and footer used an *inverted* surface, so light-mode visitors got dark slabs they never chose. | Reported by the client | The band now follows the theme: a soft brand tint in light mode, a raised ink panel in dark. Locked in by 14 browser tests that measure computed luminance. |
+| 20 | **Invalid `<dl>` on the About page.** A Reveal div wrapped another div around each dt/dd pair; a `<dl>` allows at most one wrapper. | Lighthouse accessibility (92) | Grid classes moved onto Reveal itself → **100**. A unit test now checks dt/dd nesting on every page. |
+| 21 | **"Pvt. Ltd.. All rights reserved."** — the legal name already ends in a full stop. | Footer screenshot | Removed the duplicate |
 | 17 | **Logo-less build.** The first pass shipped a placeholder mark because no official artwork existed. | Company supplied the logo | Traced the artwork to SVG and generated every derivative from it |
 | 18 | **Official blue is invisible on dark surfaces** (2.5:1 against the ink). | Contrast check before shipping the palette | The mark lightens its blue on dark surfaces only; flagged for brand sign-off |
 | 16 | **126 kB animation library for one transition.** The motion library was loaded on every page solely to animate the mobile menu. | Bundle review | Replaced with a CSS keyframe; dependency removed (−42 kB gzip on every page) |

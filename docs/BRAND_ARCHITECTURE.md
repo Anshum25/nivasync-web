@@ -152,6 +152,24 @@ reads `var(--logo-blue)`, which only the dark contexts override. If the brand
 owner prefers the exact value everywhere, delete the `--logo-blue` override in
 `.dark` and `.on-inverse` — but the mark will be very hard to see.
 
+### Surfaces
+
+The site uses three surfaces, and **all three follow the theme** — there is no
+inverted band:
+
+| Surface | Light | Dark | Used for |
+| --- | --- | --- | --- |
+| Default | `#FCFDFE` | `#070C16` | Most sections |
+| Sunken | `#F1F4F9` | `#04070E` | Alternating sections |
+| Emphasis (`.band-emphasis`) | `#EAF1FD` — soft brand tint | `#101728` — raised ink | Hero, CTA, footer, feature sections |
+
+An earlier version inverted the emphasis band: a near-black hero and footer on
+an otherwise light page. It photographed well and read badly — it broke the
+page's rhythm and gave light-mode visitors a dark section they had not chosen.
+The band now shifts *within* the theme instead of against it, and browser tests
+measure the computed luminance of every large surface in both modes to keep it
+that way.
+
 ### Typography
 
 | Role | Family | Why |
