@@ -1,0 +1,96 @@
+# =============================================================================
+# NivaSync Infotech — Apache configuration
+#
+# Target: Hostinger shared / static hosting (Apache + LiteSpeed). This file is
+# copied verbatim into dist/ by Vite because it lives in public/.
+#
+# It does three jobs: SPA routing, security headers, and cache control.
+# No Node.js runtime is assumed anywhere.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# 1. SPA routing — THE critical rule.
+#
+# This is a client-routed single-page app. Without this, a visitor who opens
+# https://www.nivasync.in/products/itms directly, or refreshes any page other
+# than the homepage, gets the host's 404 instead of the site.
+#
+# Rule: if the request is not an existing file or directory, serve index.html
+# and let React Router resolve the path.
+# -----------------------------------------------------------------------------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Force HTTPS. Comment out only if the certificate is not yet issued.
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+  # Never rewrite real files or directories (assets, sitemap.xml, robots.txt).
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Everything else goes to the app shell.
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+# -----------------------------------------------------------------------------
+# 2. Security headers
+#
+# The CSP matches what this site actually loads: its own assets, Google Fonts,
+# and nothing else. If a form endpoint or analytics is added later, its origin
+# must be added to connect-src / script-src or the browser will block it.
+# -----------------------------------------------------------------------------
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains" env=HTTPS
+
+  # NOTE: the placeholder token in script-src below is replaced at build time by
+  # scripts/generate-seo.mjs with the SHA-256 of index.html's inline bootstrap
+  # script. Editing that script without rebuilding will break the page, because
+  # the browser will refuse to run a script whose hash is not listed.
+  #
+  # `unsafe-inline` appears only in style-src: React sets inline styles for the
+  # scroll-reveal transitions. script-src stays strict.
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' {{INLINE_SCRIPT_HASHES}}; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
+
+  # index.html must never be cached: it carries the hashed asset references, so
+  # a stale copy pins visitors to a previous deployment.
+  <FilesMatch "\.(html)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
+# -----------------------------------------------------------------------------
+# 3. Caching
+#
+# Vite fingerprints every asset filename, so hashed assets are immutable and can
+# be cached for a year. Only index.html and the SEO files need revalidation.
+# -----------------------------------------------------------------------------
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType application/xml "access plus 1 hour"
+  ExpiresByType text/plain "access plus 1 hour"
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/javascript application/json image/svg+xml
+</IfModule>
+
+# Block access to source maps and dotfiles if any ever reach the server.
+<FilesMatch "(^\.|\.map$)">
+  Require all denied
+</FilesMatch>

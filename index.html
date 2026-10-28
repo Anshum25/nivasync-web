@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Per-route metadata is managed at runtime by src/lib/seo.ts. These are the
+         defaults used before hydration and by crawlers that do not run JS. -->
+    <title>NivaSync Infotech Pvt. Ltd. — Enterprise technology, engineered to last</title>
+    <meta
+      name="description"
+      content="NivaSync Infotech Pvt. Ltd. is the parent company behind Skydot Infotech. We engineer enterprise software, ERP, training systems and digital infrastructure for government, education and industry."
+    />
+    <meta name="author" content="NivaSync Infotech Pvt. Ltd." />
+    <meta name="theme-color" content="#070c16" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#fcfdfe" media="(prefers-color-scheme: light)" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" as="image" href="/logo-mark.svg" />
+    <link rel="preload" as="image" href="/logo-mark-dark.svg" />
+    <link rel="apple-touch-icon" href="/icon-180.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Fonts: preconnect, then one stylesheet carrying both variable families.
+         `display=swap` keeps text visible during load (no invisible-text FOIT). -->
+    <!--
+      Fonts are loaded NON-BLOCKING.
+
+      The stylesheet is fetched with media="print" (so it does not block the
+      first render) and switched to all once it arrives. That is normally a bad
+      trade because it causes a visible reflow when the real font swaps in — but
+      src/styles/tokens.css defines metric-matched fallback faces, so text laid
+      out in the fallback occupies exactly the same space. The result is a
+      render-unblocked page with zero layout shift.
+
+      The <noscript> copy keeps the fonts for visitors without JavaScript.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400..600&display=swap"
+    />
+    <link
+      id="font-css"
+      rel="stylesheet"
+      media="print"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400..600&display=swap"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400..600&display=swap"
+      />
+    </noscript>
+
+    <!--
+      Inline, synchronous bootstrap. Two jobs, both of which must happen before
+      first paint:
+
+      1. Theme resolution — otherwise a dark-mode visitor sees a white flash.
+      2. Promoting the font stylesheet from media="print" to media="all" once it
+         loads. This is done here, in script, rather than with an inline `onload`
+         attribute: the Content-Security-Policy in public/.htaccess does not
+         allow inline event-handler attributes, and weakening it for a font
+         would be the wrong trade.
+
+      ⚠ If you edit this block, recompute its SHA-256 and update the
+      `script-src` hash in public/.htaccess, or the browser will refuse to run
+      it. See docs/DEPLOYMENT.md.
+    -->
+    <script>
+      ;(function () {
+        try {
+          var stored = localStorage.getItem('nivasync-theme')
+          var dark =
+            stored === 'dark' ||
+            (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)
+          if (dark) document.documentElement.classList.add('dark')
+        } catch (e) {
+          /* Private mode / blocked storage: fall through to the light default. */
+        }
+        var fontCss = document.getElementById('font-css')
+        if (fontCss) {
+          fontCss.onload = function () {
+            fontCss.media = 'all'
+          }
+          /* Already cached and loaded before this ran. */
+          if (fontCss.sheet) fontCss.media = 'all'
+        }
+      })()
+    </script>
+
+    <style>
+      /*
+        Boot screen.
+        Rules that make this honest and safe:
+        - It is plain CSS and markup, so it appears instantly without waiting for JS.
+        - The bar is a fixed-duration animation and is NOT presented as a progress
+          meter of real downloads, because it is not measuring any.
+        - It removes itself on `animation-end` even if React never mounts, so a
+          JS failure can never leave a visitor staring at a blocked screen.
+        - It is skipped entirely under prefers-reduced-motion.
+      */
+      #boot {
+        position: fixed;
+        inset: 0;
+        z-index: 900;
+        display: grid;
+        place-items: center;
+        gap: 1.75rem;
+        /* The boot screen follows the theme. The inline script above has already
+           set `.dark` on <html> by the time this paints, so a dark-mode visitor
+           never sees a white flash and a light-mode visitor never sees a black
+           one. */
+        background: #fcfdfe;
+        animation: boot-out 420ms cubic-bezier(0.16, 1, 0.3, 1) 520ms forwards;
+      }
+      #boot[hidden] {
+        display: none;
+      }
+      html.dark #boot {
+        background: #070c16;
+      }
+      .boot-mark {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        opacity: 0;
+        animation: boot-in 480ms cubic-bezier(0.16, 1, 0.3, 1) 60ms forwards;
+      }
+      .boot-mark img {
+        width: 2.75rem;
+        height: 2.75rem;
+      }
+      /* The mark's blue is too dark to read on ink, so each theme gets its own
+         variant and CSS picks one. Both are tiny and preloaded. */
+      html:not(.dark) .boot-mark .on-dark,
+      html.dark .boot-mark .on-light {
+        display: none;
+      }
+      .boot-word {
+        font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+        font-size: 1.3rem;
+        font-weight: 500;
+        letter-spacing: -0.035em;
+        font-weight: 800;
+        color: #070c16;
+      }
+      html.dark .boot-word {
+        color: #f1f4f9;
+      }
+      .boot-rail {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: rgba(7, 12, 22, 0.08);
+        overflow: hidden;
+      }
+      html.dark .boot-rail {
+        background: rgba(255, 255, 255, 0.08);
+      }
+      .boot-rail span {
+        display: block;
+        height: 100%;
+        width: 100%;
+        background: linear-gradient(90deg, #fc6302 0%, #fc6302 45%, #024bb1 55%, #4d8fe8 100%);
+        transform: scaleX(0);
+        transform-origin: left;
+        animation: boot-rail 760ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      }
+      @keyframes boot-in {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      @keyframes boot-rail {
+        to {
+          transform: scaleX(1);
+        }
+      }
+      @keyframes boot-out {
+        to {
+          opacity: 0;
+          visibility: hidden;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #boot {
+          display: none;
+        }
+      }
+      .noscript-note {
+        max-width: 34rem;
+        margin: 6rem auto;
+        padding: 0 1.5rem;
+        font-family: system-ui, sans-serif;
+        line-height: 1.6;
+        color: #101728;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="boot" aria-hidden="true">
+      <div class="boot-mark">
+        <img class="on-light" src="/logo-mark.svg" width="44" height="44" alt="" />
+        <img class="on-dark" src="/logo-mark-dark.svg" width="44" height="44" alt="" />
+        <span class="boot-word">NivaSync</span>
+      </div>
+      <div class="boot-rail"><span></span></div>
+    </div>
+
+    <div id="root"></div>
+
+    <noscript>
+      <div class="noscript-note">
+        <h1>NivaSync Infotech Pvt. Ltd.</h1>
+        <p>
+          This site needs JavaScript for navigation. You can still reach us directly:
+          <a href="mailto:hello@nivasync.in">hello@nivasync.in</a> or
+          <a href="tel:+919714490600">+91 97144 90600</a>.
+        </p>
+        <p>
+          603, ZION Z1, Near Avalon Hotel, Bodakdev, Sindhu Bhavan Road, Ahmedabad,
+          Gujarat 380054, India.
+        </p>
+      </div>
+    </noscript>
+
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

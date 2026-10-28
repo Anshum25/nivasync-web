@@ -1,0 +1,286 @@
+/* =============================================================================
+   NivaSync Infotech — Design Tokens
+   -----------------------------------------------------------------------------
+   Single source of truth for colour, type, spacing, layout, radii, shadow,
+   motion and z-index. Nothing in the app should hard-code a raw value that
+   belongs here.
+
+   BRAND STATUS: the palette below is derived from the OFFICIAL NivaSync logo
+   supplied by the company. The two core values were sampled from the artwork
+   itself (median of all saturated pixels in each region):
+
+       orange  #FC6302
+       blue    #024BB1
+
+   Skydot's own values (--skydot-orange / --skydot-blue) are separate and were
+   recovered from the published skydotinfotech.com theme.
+   See docs/BRAND_ARCHITECTURE.md §5.
+   ========================================================================== */
+
+/* -----------------------------------------------------------------------------
+   Metric-matched fallback fonts
+
+   `font-display: swap` keeps text visible while a web font loads, but when the
+   real font arrives its different metrics reflow the page. These faces re-map a
+   local system font so its advance widths and vertical metrics match the web
+   font, making the swap invisible.
+
+   Measured, not guessed: a 100px sample string was rendered in each face in
+   Chromium and compared against Arial.
+
+       size-adjust      = targetWidth / fallbackWidth
+       ascent-override  = targetAscent / size-adjust
+       descent-override = targetDescent / size-adjust
+
+   Re-measure if either family is replaced.
+   -------------------------------------------------------------------------- */
+@font-face {
+  font-family: 'Jakarta Fallback';
+  src:
+    local('Arial'),
+    local('Helvetica Neue'),
+    local('Liberation Sans');
+  size-adjust: 106.32%;
+  ascent-override: 97.82%;
+  descent-override: 20.69%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Inter Fallback';
+  src:
+    local('Arial'),
+    local('Helvetica Neue'),
+    local('Liberation Sans');
+  size-adjust: 106.9%;
+  ascent-override: 90.74%;
+  descent-override: 22.45%;
+  line-gap-override: 0%;
+}
+
+:root {
+  /* ---------------------------------------------------------------- palette */
+  /* NivaSync blue — the forward arrow in the mark. Primary brand colour.
+     #024BB1 is the sampled value and scores 7.9:1 on white, so it carries
+     body-size text and UI as well as brand use. */
+  --nv-blue-800: #01265a;
+  --nv-blue-700: #012f70;
+  --nv-blue-600: #024bb1; /* ← exact brand blue */
+  --nv-blue-500: #1a66d4;
+  --nv-blue-400: #4d8fe8; /* 6.0:1 on ink — the blue for dark surfaces */
+  --nv-blue-200: #afccf7;
+  --nv-blue-100: #d6e5fc;
+  --nv-blue-50: #eaf1fd;
+
+  /* NivaSync orange — the counter arrow. Energy accent.
+     #FC6302 is only 3.0:1 on white, so it is used for graphics, rules, arrows
+     and large type. --nv-orange-600 is the text-safe equivalent at 5.2:1. */
+  --nv-orange-700: #8f3a00;
+  --nv-orange-600: #b84a00; /* text-safe on light surfaces */
+  --nv-orange-500: #fc6302; /* ← exact brand orange */
+  --nv-orange-400: #ff8534;
+  --nv-orange-200: #ffd2b0;
+  --nv-orange-50: #fff2e8;
+
+  /* Ink — tinted toward the brand blue rather than neutral black, so inverted
+     bands read as part of the identity instead of as generic dark mode. */
+  --nv-ink-950: #04070e;
+  --nv-ink-900: #070c16;
+  --nv-ink-800: #101728;
+  --nv-ink-700: #1b2438;
+  --nv-ink-600: #2a3650;
+
+  /* Cool slate, blue-leaning to match the ink. Contrast-checked. */
+  --nv-slate-500: #525e78; /* 6.5:1 on paper — muted body text  */
+  --nv-slate-450: #5f6b86; /* 5.4:1 on paper, 4.9:1 on sunken   */
+  --nv-slate-400: #8692a9; /* dark surfaces and non-text use    */
+  --nv-slate-300: #aeb8cc;
+  --nv-slate-200: #cdd5e2;
+  --nv-slate-100: #e4e9f1;
+  --nv-slate-50: #f1f4f9;
+  --nv-paper: #fcfdfe;
+
+  /* Skydot brand — VERIFIED from the live site's theme-color + CSS vars.
+     Deliberately distinct from NivaSync's own values. */
+  --skydot-orange: #f05a28;
+  --skydot-blue: #1677ff;
+
+  /* The logo's own colours, as custom properties so the mark can adapt its
+     blue on dark surfaces without the component knowing about themes. */
+  --logo-orange: var(--nv-orange-500);
+  --logo-blue: var(--nv-blue-600);
+
+  /* Functional */
+  --nv-danger: #c0362c;
+  --nv-danger-soft: #fdecea;
+  --nv-success: #0f7a52;
+  --nv-success-soft: #e8f6ef;
+
+  /* ------------------------------------------------- semantic surfaces (light) */
+  --surface: var(--nv-paper);
+  --surface-raised: #ffffff;
+  --surface-sunken: var(--nv-slate-50);
+  --surface-inverse: var(--nv-ink-900);
+  --surface-accent-soft: var(--nv-blue-50);
+  --surface-spark-soft: var(--nv-orange-50);
+
+  --content: var(--nv-ink-900);
+  --content-muted: var(--nv-slate-500);
+  --content-subtle: var(--nv-slate-450);
+  --content-inverse: var(--nv-slate-50);
+  --content-inverse-muted: var(--nv-slate-300);
+  --content-accent: var(--nv-blue-600);
+  --content-spark: var(--nv-orange-600);
+
+  --line: var(--nv-slate-100);
+  --line-strong: var(--nv-slate-200);
+  --line-inverse: rgb(255 255 255 / 0.12);
+
+  --accent: var(--nv-blue-600);
+  --accent-hover: var(--nv-blue-700);
+  --accent-on: #ffffff;
+  --accent-ring: color-mix(in oklab, var(--nv-blue-500) 45%, transparent);
+
+  /* The orange is the brand's second voice: section rules, arrow motifs and
+     the moments where the site should feel like the logo. */
+  --spark: var(--nv-orange-500);
+
+  /* ------------------------------------------------------------- typography */
+  --font-display: 'Plus Jakarta Sans', 'Jakarta Fallback', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Inter', 'Inter Fallback', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Fluid editorial scale. clamp() keeps headings proportional from 320px up
+     without a cascade of breakpoint overrides. */
+  --text-display-1: clamp(2.75rem, 1.6rem + 5.6vw, 6.5rem);
+  --text-display-2: clamp(2.25rem, 1.55rem + 3.4vw, 4.25rem);
+  --text-h1: clamp(2rem, 1.45rem + 2.6vw, 3.375rem);
+  --text-h2: clamp(1.625rem, 1.3rem + 1.6vw, 2.375rem);
+  --text-h3: clamp(1.25rem, 1.1rem + 0.8vw, 1.625rem);
+  --text-h4: clamp(1.0625rem, 1rem + 0.4vw, 1.25rem);
+  --text-body-lg: clamp(1.0625rem, 1rem + 0.4vw, 1.1875rem);
+  --text-body: 1rem;
+  --text-sm: 0.9375rem;
+  --text-xs: 0.8125rem;
+  --text-label: 0.6875rem;
+
+  --leading-tight: 1.05;
+  --leading-snug: 1.14;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.65;
+
+  --tracking-display: -0.035em;
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-label: 0.14em;
+
+  /* Display weight. The mark is bold and geometric; thin headlines fight it. */
+  --weight-display: 700;
+
+  /* ------------------------------------------------------------------ space */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+  --space-10: 8rem;
+
+  /* Section rhythm — the vertical beat of the whole site. */
+  --section-y: clamp(4.5rem, 3rem + 7vw, 9rem);
+  --section-y-tight: clamp(3rem, 2rem + 4vw, 5.5rem);
+
+  /* ----------------------------------------------------------------- layout */
+  --container-max: 84rem; /* 1344px */
+  --container-prose: 46rem;
+  --container-narrow: 62rem;
+  --gutter: clamp(1.25rem, 0.75rem + 2.5vw, 3.5rem);
+
+  /* ------------------------------------------------------------------ radii */
+  --radius-xs: 2px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 999px;
+
+  /* ---------------------------------------------------------------- shadows */
+  /* Restrained and tinted with the ink colour rather than pure black. */
+  --shadow-xs: 0 1px 2px rgb(7 12 22 / 0.05);
+  --shadow-sm: 0 2px 6px -1px rgb(7 12 22 / 0.07), 0 1px 2px rgb(7 12 22 / 0.04);
+  --shadow-md: 0 10px 24px -8px rgb(7 12 22 / 0.12), 0 2px 6px -2px rgb(7 12 22 / 0.06);
+  --shadow-lg: 0 24px 56px -20px rgb(7 12 22 / 0.2), 0 6px 16px -8px rgb(7 12 22 / 0.08);
+  --shadow-accent: 0 18px 44px -20px color-mix(in oklab, var(--nv-blue-600) 55%, transparent);
+
+  /* ----------------------------------------------------------------- motion */
+  --dur-instant: 90ms;
+  --dur-fast: 180ms;
+  --dur-base: 280ms;
+  --dur-slow: 520ms;
+  --dur-reveal: 720ms;
+
+  /* Named curves so motion reads consistently across the site. */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  /* ---------------------------------------------------------------- z-index */
+  --z-base: 0;
+  --z-raised: 10;
+  --z-sticky: 100;
+  --z-header: 200;
+  --z-dropdown: 300;
+  --z-overlay: 400;
+  --z-modal: 500;
+  --z-toast: 600;
+  --z-preloader: 900;
+  --z-skip-link: 1000;
+}
+
+/* -------------------------------------------------------------- dark theme */
+/* Applied by a `.dark` class on <html>, set before paint by the inline script
+   in index.html so there is no flash of the wrong theme. */
+.dark {
+  --surface: var(--nv-ink-900);
+  --surface-raised: var(--nv-ink-800);
+  --surface-sunken: var(--nv-ink-950);
+  --surface-inverse: var(--nv-slate-50);
+  --surface-accent-soft: color-mix(in oklab, var(--nv-blue-500) 16%, var(--nv-ink-800));
+  --surface-spark-soft: color-mix(in oklab, var(--nv-orange-500) 14%, var(--nv-ink-800));
+
+  --content: var(--nv-slate-50);
+  --content-muted: var(--nv-slate-300);
+  --content-subtle: var(--nv-slate-400);
+  --content-inverse: var(--nv-ink-900);
+  --content-inverse-muted: var(--nv-slate-500);
+  --content-accent: var(--nv-blue-400);
+  --content-spark: var(--nv-orange-400);
+
+  --line: rgb(255 255 255 / 0.1);
+  --line-strong: rgb(255 255 255 / 0.18);
+  --line-inverse: rgb(7 12 22 / 0.12);
+
+  --accent: var(--nv-blue-400);
+  --accent-hover: var(--nv-blue-200);
+  --accent-on: var(--nv-ink-950);
+  --spark: var(--nv-orange-400);
+
+  /* ⚠ The mark's blue is lightened on dark surfaces. #024BB1 on near-black is
+     2.5:1 and effectively disappears. This is a legibility adaptation of the
+     official artwork and should be confirmed with the brand owner. */
+  --logo-blue: var(--nv-blue-400);
+  --logo-orange: var(--nv-orange-500);
+
+  --nv-danger: #ff8a7d;
+  --nv-danger-soft: rgb(192 54 44 / 0.16);
+  --nv-success: #52d6a2;
+  --nv-success-soft: rgb(15 122 82 / 0.2);
+
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-sm: 0 2px 6px -1px rgb(0 0 0 / 0.45);
+  --shadow-md: 0 10px 24px -8px rgb(0 0 0 / 0.55);
+  --shadow-lg: 0 24px 56px -20px rgb(0 0 0 / 0.65);
+}

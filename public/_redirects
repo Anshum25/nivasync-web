@@ -1,0 +1,9 @@
+# Netlify / Cloudflare Pages SPA fallback.
+#
+# Equivalent of the mod_rewrite rule in .htaccess: any path that is not a real
+# file is served index.html so React Router can resolve it. Without this, deep
+# links and page refreshes 404 on those platforms.
+#
+# Harmless on Apache hosting — it is simply an unused text file there.
+
+/*    /index.html   200
