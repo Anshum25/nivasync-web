@@ -10,6 +10,7 @@ import { StatsRow } from '@/components/sections/StatsRow'
 import { ProcessSteps } from '@/components/sections/ProcessSteps'
 import { BrandEcosystem } from '@/components/sections/BrandEcosystem'
 import { DeploymentFootprint } from '@/components/sections/DeploymentFootprint'
+import { TransformationFlow } from '@/components/sections/TransformationFlow'
 import { ClientRoster } from '@/components/sections/ClientRoster'
 import { CtaSection } from '@/components/sections/CtaSection'
 import { useSeo } from '@/lib/seo'
@@ -204,6 +205,9 @@ export default function Home() {
           ))}
         </div>
       </Section>
+
+      {/* ——— Transformation flow ——— */}
+      <TransformationFlow />
 
       {/* ——— Brand ecosystem ——— */}
       <Section divided>
